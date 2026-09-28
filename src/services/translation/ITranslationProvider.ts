@@ -23,6 +23,12 @@ export interface ITranslationProvider {
   /** Subscribe to connection status changes */
   onStatusChange(callback: (status: ConnectionStatus) => void): void;
 
+  /** Start an active translation session (resets frame counters and sends config to backend) */
+  startSession?(): void;
+
+  /** Stop/Pause active translation session */
+  stopSession?(): void;
+
   /** Manually trigger a controlled demo gesture (for reliable presentation) */
   triggerMockGesture?(gloss: string, text: string): void;
 }

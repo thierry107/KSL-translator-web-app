@@ -20,9 +20,10 @@ export function useTranslationEngine() {
     targetLanguage,
   } = useAppStore();
 
-  // Instantiate & Manage Provider lifecycle dynamically based on active mode
+  // ── Provider Lifecycle ──────────────────────────────────────────────────
+  // Instantiate & manage provider based on active mode.
+  // Teardown previous provider on mode / serverUrl / language change.
   useEffect(() => {
-    // Cleanup previous provider before switching
     if (providerRef.current) {
       providerRef.current.disconnect();
       providerRef.current = null;
@@ -66,14 +67,18 @@ export function useTranslationEngine() {
     };
   }, [mode, serverUrl, receivePrediction, setConnectionStatus, targetLanguage, ttsEnabled]);
 
-  // Transmit extracted landmark frame to active translation provider
+  // ── Frame Transmission ──────────────────────────────────────────────────
+  // The provider's sendFrame() already owns the monotonic frameId counter and
+  // the rate-limiting + config-before-frames guard. This hook passes only the
+  // raw landmark payload; frameId is intentionally omitted here because
+  // WebSocketTranslationProvider assigns it internally.
   const sendLandmarkFrame = useCallback(
     (frame: ExtractedFrameData) => {
-      // Session Lifecycle Rule: Only transmit frames when translation session is ACTIVE
+      // Session Lifecycle Rule: only transmit when translation is ACTIVE.
       if (!providerRef.current || !isTranslating) return;
 
       const payload: FrameLandmarks = {
-        frameId: Math.floor(frame.timestamp / 33),
+        frameId: 0, // Placeholder – overwritten by the provider's internal counter
         timestamp: frame.timestamp,
         leftHand: frame.normalizedLeftHand,
         rightHand: frame.normalizedRightHand,
@@ -84,16 +89,27 @@ export function useTranslationEngine() {
     [isTranslating]
   );
 
-  // Toggle session state & renew session ID on WebSocket provider when starting
+  // ── Session Toggle ──────────────────────────────────────────────────────
+  // When starting: generate a new sessionId, reset the monotonic frame counter,
+  //   and ensure a config message is sent to the backend BEFORE any frames.
+  // When stopping: immediately gate sendFrame() without tearing down the socket.
   const toggleSession = useCallback(() => {
     const nextState = !isTranslating;
     setTranslating(nextState);
 
-    if (nextState && providerRef.current instanceof WebSocketTranslationProvider) {
-      providerRef.current.renewSession();
+    const provider = providerRef.current;
+    if (!provider) return;
+
+    if (nextState) {
+      // stopped → active
+      provider.startSession?.();
+    } else {
+      // active → stopped
+      provider.stopSession?.();
     }
   }, [isTranslating, setTranslating]);
 
+  // ── Demo Gesture Trigger (Mock provider only) ───────────────────────────
   const triggerManualDemoGesture = useCallback((gloss: string, text: string) => {
     if (providerRef.current?.triggerMockGesture) {
       providerRef.current.triggerMockGesture(gloss, text);

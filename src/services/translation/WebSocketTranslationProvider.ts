@@ -21,9 +21,20 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
   private lastPingTime = 0;
   private lastPongTime = 0;
 
-  // Frame Rate Transport (25 FPS target / 40ms interval)
-  private lastSentFrameTime = 0;
-  private SEND_INTERVAL_MS = 40;
+  // Session State
+  //
+  // isSessionActive: true only after startSession() is called and the config
+  //   message for the current sessionId has been flushed to the socket.
+  //   sendFrame() is a no-op while this is false.
+  //
+  // frameCounter: monotonic per-session counter. Resets to 0 on every
+  //   startSession() call.  Never derived from wall-clock time.
+  //
+  // configSent: prevents a second config message being sent if startSession()
+  //   is called while the socket is already open and a session is in progress.
+  private isSessionActive = false;
+  private frameCounter = 0;
+  private configSent = false;
 
   constructor(
     serverUrl = 'ws://localhost:8000/api/v1/translate/ws',
@@ -42,10 +53,49 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
     this.serverUrl = url;
   }
 
-  public renewSession() {
+  // ─── Session Lifecycle ────────────────────────────────────────────────────
+
+  /**
+   * Marks the start of a new translation session.
+   *
+   * Behaviour:
+   * - Generates a brand-new sessionId so the backend can unambiguously
+   *   distinguish this session from any previous one.
+   * - Resets the monotonic frameCounter to 0.
+   * - Sends a `config` message to the backend BEFORE any landmark frames
+   *   are allowed through.  If the socket is not yet open the config will
+   *   be sent inside handleOpen() once the connection is established.
+   * - Sets isSessionActive = true only after the config is sent (or queued).
+   */
+  startSession(): void {
+    // Fresh session identity – backend will see a new sessionId.
     this.sessionId = this.generateSessionId();
-    console.log(`[WebSocketProvider] Renewed session ID: ${this.sessionId}`);
+    this.frameCounter = 0;
+    this.configSent = false;
+
+    console.log(`[WebSocketProvider] Starting new session: ${this.sessionId}`);
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.sendConfigMessage();
+    }
+    // If socket is not yet open, handleOpen() will call sendConfigMessage()
+    // and then set isSessionActive = true there.
+
+    this.isSessionActive = true;
   }
+
+  /**
+   * Halts landmark transmission for the current session.
+   * The WebSocket connection itself is kept alive (keepalive reconnects, etc.).
+   * A subsequent startSession() call will open a new session with a fresh ID.
+   */
+  stopSession(): void {
+    console.log(`[WebSocketProvider] Stopping session: ${this.sessionId}`);
+    this.isSessionActive = false;
+    this.configSent = false;
+  }
+
+  // ─── ITranslationProvider ─────────────────────────────────────────────────
 
   async connect(): Promise<void> {
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
@@ -72,6 +122,8 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
 
   disconnect(): void {
     this.isIntentionallyClosed = true;
+    this.isSessionActive = false;
+    this.configSent = false;
     this.stopHeartbeat();
 
     if (this.reconnectTimer) {
@@ -102,21 +154,27 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
 
   /**
    * Transmits normalized 3D hand keypoints payload over WebSocket.
+   *
    * STRICT PRIVACY GUARANTEE: Raw video frames are NEVER transmitted.
+   *
+   * Guards:
+   * 1. Socket must be OPEN.
+   * 2. A translation session must be active (startSession() was called).
+   * 3. The config message for the current sessionId must have been sent first
+   *    (configSent === true), ensuring the backend always receives the
+   *    session/config handshake before any landmark frames for that session.
+   * 4. Each frame is transmitted AT MOST ONCE (no duplicate delivery).
    */
   sendFrame(landmarks: FrameLandmarks): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-
-    const now = Date.now();
-    if (now - this.lastSentFrameTime < this.SEND_INTERVAL_MS) {
-      return; // Rate limit to 25 FPS
-    }
-    this.lastSentFrameTime = now;
+    if (!this.isSessionActive) return;
+    if (!this.configSent) return; // Config must precede any landmark frame
 
     const payload: ClientWebSocketMessage = {
       type: 'landmarks',
       sessionId: this.sessionId,
-      frameId: landmarks.frameId,
+      // Monotonic per-session counter – never derived from wall-clock time.
+      frameId: this.frameCounter++,
       timestamp: landmarks.timestamp,
       data: {
         leftHand: landmarks.leftHand,
@@ -131,23 +189,40 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
     }
   }
 
-  // Socket Lifecycle Handlers
+  // ─── Socket Lifecycle Handlers ────────────────────────────────────────────
+
   private handleOpen() {
     console.log('[WebSocketProvider] WebSocket Connection Established.');
     this.reconnectAttempts = 0;
     this.statusCallback?.('CONNECTED');
 
-    // Send initial configuration handshake
+    // If a session was started before the socket finished opening, send the
+    // queued config now so the backend gets session context before any frames.
+    if (this.isSessionActive && !this.configSent) {
+      this.sendConfigMessage();
+    }
+
+    // Start 10-second Ping-Pong Keepalive & Heartbeat monitor
+    this.startHeartbeat();
+  }
+
+  /**
+   * Sends the session config handshake and marks configSent = true.
+   * Called exactly once per session, before the first landmark frame.
+   */
+  private sendConfigMessage(): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
     const configMsg: ClientWebSocketMessage = {
       type: 'config',
       sessionId: this.sessionId,
       targetLanguage: this.targetLanguage,
       fps: 25,
     };
-    this.ws?.send(JSON.stringify(configMsg));
 
-    // Start 10-second Ping-Pong Keepalive & Heartbeat monitor
-    this.startHeartbeat();
+    this.ws.send(JSON.stringify(configMsg));
+    this.configSent = true;
+    console.log(`[WebSocketProvider] Config sent for session ${this.sessionId}`);
   }
 
   private handleMessage(event: MessageEvent) {
@@ -183,6 +258,7 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
 
   private handleClose(event: CloseEvent) {
     this.stopHeartbeat();
+    this.configSent = false; // Config must be re-sent on the next connection
 
     if (!this.isIntentionallyClosed) {
       console.warn(`[WebSocketProvider] Socket closed unexpectedly (code ${event.code}).`);
@@ -192,7 +268,8 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
     }
   }
 
-  // Heartbeat & Unresponsive Socket Detection
+  // ─── Heartbeat & Unresponsive Socket Detection ───────────────────────────
+
   private startHeartbeat() {
     this.stopHeartbeat();
     this.lastPingTime = Date.now();
