@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Environment variables — never commit secrets
+.env
+.env.local
+.env.*.local
+# .env.example is intentionally tracked (no secrets, just template)
+
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +29,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend — Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Backend — ONNX model file (large binary, download separately)
+backend/model/*.onnx
+

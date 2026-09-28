@@ -32,7 +32,7 @@ export interface AppStoreState {
 export const useAppStore = create<AppStoreState>((set) => ({
   // Defaults
   connectionStatus: 'MOCK_MODE',
-  serverUrl: 'ws://localhost:8000/api/v1/translate/ws',
+  serverUrl: import.meta.env.VITE_WS_URL ?? 'ws://localhost:8000/api/v1/translate/ws',
   isTranslating: false,
   mode: 'MOCK_LOCAL',
   currentGloss: 'WAITING FOR SIGN',

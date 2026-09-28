@@ -1,0 +1,15 @@
+# Render deployment configuration for the KSL Translator backend
+# Docs: https://render.com/docs/render-yaml
+
+services:
+  - type: web
+    name: ksl-translator-backend
+    runtime: python
+    region: oregon            # Change to the region closest to your users
+    plan: free                # Free tier — spins down after 15 min of inactivity
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"

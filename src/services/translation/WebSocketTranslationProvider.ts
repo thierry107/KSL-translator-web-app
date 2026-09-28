@@ -37,7 +37,7 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
   private configSent = false;
 
   constructor(
-    serverUrl = 'ws://localhost:8000/api/v1/translate/ws',
+    serverUrl = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8000/api/v1/translate/ws',
     targetLanguage = 'en-US'
   ) {
     this.serverUrl = serverUrl;
