@@ -176,6 +176,7 @@ async def translate_ws(websocket: WebSocket) -> None:
                             gloss=gloss,
                             translatedText=sentence,
                             confidence=confidence,
+                            isStub=getattr(classifier, 'is_stub', False),
                         ),
                     )
                     await websocket.send_text(prediction.model_dump_json())

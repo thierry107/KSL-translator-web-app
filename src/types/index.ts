@@ -35,6 +35,7 @@ export interface PredictionResult {
   translatedText: string;
   confidence: number;
   timestamp: number;
+  isStub?: boolean;
 }
 
 export interface AppTranslationState {

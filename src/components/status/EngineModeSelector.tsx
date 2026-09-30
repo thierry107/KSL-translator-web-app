@@ -80,9 +80,9 @@ export const EngineModeSelector: React.FC = () => {
               Save
             </button>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-1">
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 pt-1" title="Video never leaves your device. In remote mode, only hand landmark coordinates are sent.">
             <ShieldCheck className="w-3 h-3 text-emerald-400" />
-            <span>Privacy Guard: Only 3D keypoint arrays are sent. Raw video is NEVER transmitted.</span>
+            <span>Privacy Guard: Video never leaves your device. In remote mode, only hand landmark coordinates are sent.</span>
           </div>
         </form>
       )}

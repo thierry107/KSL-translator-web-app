@@ -108,9 +108,11 @@ class SignClassifier:
                 providers=["CPUExecutionProvider"],
             )
             self._input_name: str = self._session.get_inputs()[0].name
+            self.is_stub: bool = False
             print(f"[Classifier] Model loaded — {len(CLASS_LABELS)} classes, "
                   f"input '{self._input_name}'")
         else:
+            self.is_stub: bool = True
             reason = "onnxruntime not installed" if not _ORT_AVAILABLE else f"no model at {MODEL_PATH}"
             print(f"[Classifier] ⚠️  Running in STUB mode ({reason}). "
                   "Place classifier.onnx in backend/model/ to enable real inference.")

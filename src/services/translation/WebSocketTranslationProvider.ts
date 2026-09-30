@@ -236,6 +236,7 @@ export class WebSocketTranslationProvider implements ITranslationProvider {
           translatedText: msg.payload.translatedText,
           confidence: msg.payload.confidence,
           timestamp: msg.timestamp,
+          isStub: msg.payload.isStub,
         };
 
         this.predictionCallback?.(result);

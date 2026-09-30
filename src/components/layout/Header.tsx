@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ connectionStatus, isOnline }) =>
 
         {/* Header Right Status Badges & Privacy Indicator */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/60 border border-slate-800 text-xs text-slate-300" title="Camera video stays 100% in browser. Only keypoint coordinates are sent to backend.">
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/60 border border-slate-800 text-xs text-slate-300" title="Video never leaves your device. In remote mode, only hand landmark coordinates are sent.">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Privacy Guard On</span>
           </div>

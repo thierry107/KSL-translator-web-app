@@ -39,6 +39,7 @@ export type ServerWebSocketMessage =
         translatedText: string;
         confidence: number;
         isFinal?: boolean;
+        isStub?: boolean;
       };
     }
   | {

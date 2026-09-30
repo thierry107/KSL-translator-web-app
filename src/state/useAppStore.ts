@@ -15,6 +15,7 @@ export interface AppStoreState {
   history: PredictionResult[];
   
   // Controls & Preferences
+  isBackendStub: boolean;
   ttsEnabled: boolean;
   targetLanguage: string;
   
@@ -23,6 +24,7 @@ export interface AppStoreState {
   setServerUrl: (url: string) => void;
   setTranslating: (translating: boolean) => void;
   setMode: (mode: 'MOCK_LOCAL' | 'LIVE_WEBSOCKET') => void;
+  setIsBackendStub: (isStub: boolean) => void;
   receivePrediction: (prediction: PredictionResult) => void;
   toggleTts: () => void;
   setTargetLanguage: (lang: string) => void;
@@ -39,6 +41,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
   currentSentence: 'Start translation session and show sign gesture to camera.',
   confidence: 0,
   history: [],
+  isBackendStub: true,
   ttsEnabled: true,
   targetLanguage: 'en-US',
 
@@ -50,6 +53,8 @@ export const useAppStore = create<AppStoreState>((set) => ({
   setTranslating: (translating) => set({ isTranslating: translating }),
   
   setMode: (mode) => set({ mode }),
+
+  setIsBackendStub: (isStub) => set({ isBackendStub: isStub }),
 
   receivePrediction: (pred) =>
     set((state) => {
@@ -67,6 +72,7 @@ export const useAppStore = create<AppStoreState>((set) => ({
         currentSentence: pred.translatedText,
         confidence: pred.confidence,
         history: updatedHistory,
+        isBackendStub: pred.isStub !== undefined ? pred.isStub : state.isBackendStub,
       };
     }),
 

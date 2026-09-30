@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquareText, Volume2, VolumeX, Trash2, Globe, Sparkles, Activity, Play, Pause, Hand } from 'lucide-react';
+import { MessageSquareText, Volume2, VolumeX, Trash2, Globe, Sparkles, Activity, Play, Pause, Hand, AlertTriangle, RefreshCw } from 'lucide-react';
 import { EngineModeSelector } from '../status/EngineModeSelector';
 import { useAppStore } from '../../state/useAppStore';
 
@@ -23,6 +23,8 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
     history,
     ttsEnabled,
     targetLanguage,
+    connectionStatus,
+    isBackendStub,
     toggleTts,
     setTargetLanguage,
     clearHistory,
@@ -55,6 +57,22 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
 
       {/* Engine Provider Switcher (Mock vs FastAPI WebSocket) */}
       <EngineModeSelector />
+
+      {/* WebSocket Connecting State Alert */}
+      {mode === 'LIVE_WEBSOCKET' && (connectionStatus === 'CONNECTING' || connectionStatus === 'RECONNECTING') && (
+        <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-300 text-xs flex items-center gap-2 animate-pulse">
+          <RefreshCw className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+          <span>Connecting... (Render free tier takes 30-60s to wake)</span>
+        </div>
+      )}
+
+      {/* FastAPI Stub Mode Warning Banner */}
+      {mode === 'LIVE_WEBSOCKET' && isBackendStub && connectionStatus === 'CONNECTED' && (
+        <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-200 text-xs flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>Backend using placeholder model. Results are not real translations.</span>
+        </div>
+      )}
 
       {/* Primary Output Caption Box */}
       <div className="flex flex-col gap-3">
@@ -100,14 +118,19 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
         </div>
       </div>
 
-      {/* Controlled Manual Gesture Trigger Bar (Hackathon Demo Suite) */}
+      {/* Controlled Manual Gesture Trigger Bar (Demo Suite) */}
       {mode === 'MOCK_LOCAL' && (
         <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-slate-950/60 border border-purple-900/40">
-          <div className="flex items-center justify-between text-[11px] text-purple-300 font-semibold">
-            <span className="flex items-center gap-1">
-              <Hand className="w-3.5 h-3.5 text-purple-400" />
-              Controlled Demo Triggers (Presentation Suite):
-            </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center justify-between text-[11px] text-purple-300 font-semibold">
+              <span className="flex items-center gap-1">
+                <Hand className="w-3.5 h-3.5 text-purple-400" />
+                Demo gestures (simulated)
+              </span>
+            </div>
+            <p className="text-[10px] text-purple-300/70">
+              Note: Mock mode uses simple hand-shape rules, not real KSL recognition.
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <button

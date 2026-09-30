@@ -50,6 +50,7 @@ class PredictionPayload(BaseModel):
     translatedText: str
     confidence: float
     isFinal: bool = True
+    isStub: bool = False
 
 
 class PredictionMessage(BaseModel):
