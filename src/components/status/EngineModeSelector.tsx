@@ -23,8 +23,9 @@ export const EngineModeSelector: React.FC = () => {
 
         <button
           onClick={() => setShowConfig(!showConfig)}
-          className="text-slate-400 hover:text-slate-200 transition-colors p-1"
+          className="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
           title="Configure WebSocket settings"
+          aria-label="Configure WebSocket settings"
         >
           <Settings className="w-3.5 h-3.5" />
         </button>

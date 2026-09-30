@@ -141,6 +141,12 @@ h1, h2, h3, .font-display {
 .status-dot.disconnected { background-color: var(--accent-rose); box-shadow: 0 0 8px var(--accent-rose); }
 .status-dot.mock { background-color: var(--accent-purple); box-shadow: 0 0 8px var(--accent-purple); }
 
+/* Visible keyboard focus styles across all interactive elements */
+:focus-visible {
+  outline: 2px solid #06b6d4 !important;
+  outline-offset: 2px !important;
+}
+
 /* Buttons & Interactive Elements */
 @layer components {
   .btn {
@@ -192,9 +198,10 @@ h1, h2, h3, .font-display {
     background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
   }
 
-  .btn:disabled {
-    opacity: 0.5;
+  .btn:disabled, button:disabled, select:disabled, input:disabled {
+    opacity: 0.6;
     cursor: not-allowed;
+    filter: grayscale(30%);
     transform: none !important;
   }
 }

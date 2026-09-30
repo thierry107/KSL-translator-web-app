@@ -75,7 +75,7 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
             </span>
           </div>
 
-          <div className="my-auto py-4">
+          <div className="my-auto py-4" aria-live="polite" aria-atomic="true">
             <div className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-300 font-display uppercase leading-tight min-h-[3.5rem] flex items-center">
               {currentGloss || 'READY'}
             </div>
@@ -144,8 +144,9 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
           <span className="font-semibold text-slate-300">Transcript History</span>
           <button
             onClick={clearHistory}
-            className="text-slate-500 hover:text-slate-300 transition-colors p-1"
+            className="text-slate-500 hover:text-slate-300 transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
             title="Clear history"
+            aria-label="Clear transcript history"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -210,6 +211,7 @@ export const TranslationPanel: React.FC<TranslationPanelProps> = ({
               ttsEnabled ? 'btn-secondary text-cyan-400 border-cyan-800/60' : 'btn-secondary text-slate-500'
             }`}
             title={ttsEnabled ? 'Disable Text to Speech' : 'Enable Text to Speech'}
+            aria-label={ttsEnabled ? 'Disable Text to Speech' : 'Enable Text to Speech'}
           >
             {ttsEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
           </button>
