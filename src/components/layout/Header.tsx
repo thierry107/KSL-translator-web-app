@@ -11,7 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ connectionStatus, isOnline }) => {
   return (
     <header className="w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-5 w-full h-16 flex items-center justify-between">
         
         {/* Brand Logo & Name */}
         <div className="flex items-center gap-3">
@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ connectionStatus, isOnline }) =>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-white tracking-tight font-display">SignBridge AI</h1>
               <span className="px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 rounded-full">
-                Frontend MVP
+                DEMO
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">In-Browser MediaPipe Landmark & AI Sign Translator</p>

@@ -24,6 +24,9 @@ export const App: React.FC = () => {
   const { connectionStatus } = useAppStore();
   const isOnline = navigator.onLine;
 
+  // Debug mode flag (?debug=1 in URL)
+  const isDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+
   // Pipeline Bridge: Transmit each MediaPipe frame EXACTLY ONCE
   const lastSentTimestampRef = React.useRef<number>(0);
 
@@ -49,8 +52,8 @@ export const App: React.FC = () => {
         {/* Left Column: Camera Viewport, Canvas Skeleton Overlay & MediaPipe Telemetry */}
         <div className="flex flex-col gap-4">
           <CameraViewport camera={camera} mediapipe={mediapipe} />
-          <MediaPipeTestPanel mediapipe={mediapipe} />
-          <CameraTestPanel camera={camera} />
+          {isDebug && <MediaPipeTestPanel mediapipe={mediapipe} />}
+          {isDebug && <CameraTestPanel camera={camera} />}
         </div>
 
         {/* Right Column: Live Translation Panel & Demo Presentation Controls */}
@@ -62,7 +65,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Bottom Telemetry Footer */}
-      <Footer mediapipeReady={mediapipe.mediapipeStatus.isReady} fps={mediapipe.mediapipeStatus.fps} />
+      <Footer mediapipeReady={mediapipe.mediapipeStatus.isReady} fps={mediapipe.mediapipeStatus.fps} isDebug={isDebug} />
     </div>
   );
 };

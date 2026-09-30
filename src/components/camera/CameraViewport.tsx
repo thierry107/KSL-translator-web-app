@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Camera, VideoOff, RefreshCw, AlertTriangle, ShieldAlert, CheckCircle2, Play, Square, Cpu, Eye } from 'lucide-react';
+import { Camera, VideoOff, RefreshCw, AlertTriangle, ShieldAlert, CheckCircle2, Play, Square, Cpu, Eye, Sun } from 'lucide-react';
 import { LandmarkOverlay } from './LandmarkOverlay';
 import type { UseCameraReturn } from '../../hooks/useCamera';
 import type { UseMediaPipeReturn } from '../../hooks/useMediaPipe';
@@ -141,6 +141,18 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({ camera, mediapip
         )}
       </div>
 
+      {/* Workflow steps hint & Lighting/framing tip */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-slate-400 bg-slate-900/50 border border-slate-800/60 px-3 py-2 rounded-lg">
+        <div className="flex items-center gap-1.5 font-medium text-slate-300">
+          <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/60 text-[10px] font-mono">STEPS</span>
+          <span>1. Allow camera &nbsp;2. Start session &nbsp;3. Sign</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-slate-400">
+          <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span>Tip: face a light source and keep your hands inside the frame.</span>
+        </div>
+      </div>
+
       {/* Camera Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -172,19 +184,14 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({ camera, mediapip
           </button>
         </div>
 
-        <div>
-          {isActive ? (
+        {isActive && (
+          <div>
             <button onClick={stopCamera} className="btn btn-danger text-xs font-semibold px-4 py-2">
               <Square className="w-3.5 h-3.5 fill-current" />
               <span>Stop Camera</span>
             </button>
-          ) : (
-            <button onClick={() => startCamera()} className="btn btn-primary text-xs font-semibold px-4 py-2">
-              <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start Camera</span>
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );
