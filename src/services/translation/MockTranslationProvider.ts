@@ -117,23 +117,35 @@ export class MockTranslationProvider implements ITranslationProvider {
 }
 
 /**
+ * Rotation-independent Euclidean distance calculation between 3D landmark points
+ */
+function dist(p1: LandmarkPoint, p2: LandmarkPoint): number {
+  const dx = p1.x - p2.x;
+  const dy = p1.y - p2.y;
+  const dz = (p1.z ?? 0) - (p2.z ?? 0);
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+/**
  * Deterministic Heuristic Hand Gesture Matcher based on 21 keypoints
  */
 function detectHeuristicGesture(pts: LandmarkPoint[]): string | null {
-  // Check finger extension states (Fingertip Y < PIP Y relative to wrist)
-  const isThumbUp = pts[4].y < pts[3].y && pts[4].y < pts[2].y && pts[8].y > pts[6].y && pts[12].y > pts[10].y;
-  const isIndexExtended = pts[8].y < pts[6].y;
-  const isMiddleExtended = pts[12].y < pts[10].y;
-  const isRingExtended = pts[16].y < pts[14].y;
-  const isPinkyExtended = pts[20].y < pts[18].y;
+  const wrist = pts[0];
+
+  // Rotation-independent finger extension checks: compare fingertip dist from wrist vs PIP dist from wrist
+  const isThumbExtended = dist(pts[4], wrist) > dist(pts[3], wrist);
+  const isIndexExtended = dist(pts[8], wrist) > dist(pts[6], wrist);
+  const isMiddleExtended = dist(pts[12], wrist) > dist(pts[10], wrist);
+  const isRingExtended = dist(pts[16], wrist) > dist(pts[14], wrist);
+  const isPinkyExtended = dist(pts[20], wrist) > dist(pts[18], wrist);
 
   // 1. Open Palm / Wave (All 4 fingers extended)
   if (isIndexExtended && isMiddleExtended && isRingExtended && isPinkyExtended) {
     return 'HELLO';
   }
 
-  // 2. Thumbs Up (Thumb extended up, index/middle/ring/pinky folded)
-  if (isThumbUp && !isIndexExtended && !isMiddleExtended && !isRingExtended) {
+  // 2. Thumbs Up (Thumb extended, index/middle/ring/pinky folded)
+  if (isThumbExtended && !isIndexExtended && !isMiddleExtended && !isRingExtended && !isPinkyExtended) {
     return 'YES';
   }
 
