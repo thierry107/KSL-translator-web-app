@@ -13,7 +13,7 @@ export const CameraViewport: React.FC<CameraViewportProps> = ({ camera, mediapip
   const { videoRef, cameraState, startCamera, stopCamera, switchFacingMode, selectDevice } = camera;
   const { mediapipeStatus, latestFrameRef, startProcessing, stopProcessing } = mediapipe;
 
-  const { isActive, isInitializing, selectedDeviceId, facingMode, availableDevices, resolution, error } = cameraState;
+  const { isActive, isInitializing, selectedDeviceId, facingMode, availableDevices, error } = cameraState;
   const isFrontCamera = facingMode === 'user';
 
   // Automatically trigger / stop MediaPipe processing loop when camera stream starts / stops

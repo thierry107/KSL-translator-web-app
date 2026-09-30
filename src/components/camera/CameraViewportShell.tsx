@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, VideoOff, RefreshCw, Eye } from 'lucide-react';
+import { Camera, RefreshCw, Eye } from 'lucide-react';
 
 export const CameraViewportShell: React.FC = () => {
   return (

@@ -3,7 +3,6 @@ import type { FrameLandmarks, PredictionResult, ConnectionStatus, LandmarkPoint 
 
 export class MockTranslationProvider implements ITranslationProvider {
   private predictionCallback: ((pred: PredictionResult) => void) | null = null;
-  private errorCallback: ((err: string) => void) | null = null;
   private statusCallback: ((status: ConnectionStatus) => void) | null = null;
 
   private isConnected = false;
@@ -27,8 +26,8 @@ export class MockTranslationProvider implements ITranslationProvider {
     this.predictionCallback = callback;
   }
 
-  onError(callback: (err: string) => void): void {
-    this.errorCallback = callback;
+  onError(_callback: (err: string) => void): void {
+    // Mock provider does not generate runtime errors
   }
 
   onStatusChange(callback: (status: ConnectionStatus) => void): void {
@@ -121,8 +120,6 @@ export class MockTranslationProvider implements ITranslationProvider {
  * Deterministic Heuristic Hand Gesture Matcher based on 21 keypoints
  */
 function detectHeuristicGesture(pts: LandmarkPoint[]): string | null {
-  const wrist = pts[0];
-
   // Check finger extension states (Fingertip Y < PIP Y relative to wrist)
   const isThumbUp = pts[4].y < pts[3].y && pts[4].y < pts[2].y && pts[8].y > pts[6].y && pts[12].y > pts[10].y;
   const isIndexExtended = pts[8].y < pts[6].y;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TestTube, CheckCircle, ShieldAlert, VideoOff, RefreshCw, Smartphone, Monitor } from 'lucide-react';
+import { TestTube, CheckCircle, VideoOff, RefreshCw } from 'lucide-react';
 import type { UseCameraReturn } from '../../hooks/useCamera';
 
 interface CameraTestProps {
@@ -8,7 +8,6 @@ interface CameraTestProps {
 
 export const CameraTestPanel: React.FC<CameraTestProps> = ({ camera }) => {
   const [testLog, setTestLog] = useState<string[]>([]);
-  const [simulatedError, setSimulatedError] = useState<string | null>(null);
 
   const logTest = (msg: string) => {
     setTestLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev.slice(0, 4)]);

@@ -10,7 +10,6 @@ interface TranslationPanelProps {
 }
 
 export const TranslationPanel: React.FC<TranslationPanelProps> = ({
-  isCameraActive,
   toggleSession,
   triggerManualDemoGesture,
 }) => {

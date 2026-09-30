@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, Wifi, Settings, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Cpu, Wifi, Settings, ShieldCheck } from 'lucide-react';
 import { useAppStore } from '../../state/useAppStore';
 
 export const EngineModeSelector: React.FC = () => {

@@ -1,4 +1,4 @@
-import type { FrameLandmarks, PredictionResult } from '../types';
+import type { FrameLandmarks } from '../types';
 
 /**
  * Client-to-Server WebSocket Outgoing Messages

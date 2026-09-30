@@ -51,7 +51,9 @@ export function useMediaPipe(): UseMediaPipeReturn {
         let visionResolver;
         try {
           // Primary local Wasm resolver
-          visionResolver = await FilesetResolver.forVisionTasks('./vendor/mediapipe/wasm');
+          visionResolver = await FilesetResolver.forVisionTasks(
+            `${import.meta.env.BASE_URL}vendor/mediapipe/wasm`
+          );
         } catch (localWasmErr) {
           console.warn('[MediaPipe] Local Wasm resolver failed, attempting CDN fallback:', localWasmErr);
           visionResolver = await FilesetResolver.forVisionTasks(
@@ -64,7 +66,7 @@ export function useMediaPipe(): UseMediaPipeReturn {
         try {
           landmarker = await HandLandmarker.createFromOptions(visionResolver, {
             baseOptions: {
-              modelAssetPath: './vendor/mediapipe/models/hand_landmarker.task',
+              modelAssetPath: `${import.meta.env.BASE_URL}vendor/mediapipe/models/hand_landmarker.task`,
               delegate: 'GPU',
             },
             runningMode: 'VIDEO',

@@ -157,7 +157,7 @@ export function useCamera(): UseCameraReturn {
         console.error('[useCamera] getUserMedia failed:', err);
         stopCamera();
 
-        let errorCode: CameraState['error']['code'] = 'UNKNOWN';
+        let errorCode: NonNullable<CameraState['error']>['code'] = 'UNKNOWN';
         let errorMessage = 'Failed to access camera.';
 
         if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {

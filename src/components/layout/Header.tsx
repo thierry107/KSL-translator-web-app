@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Camera, ShieldCheck } from 'lucide-react';
+import { Sparkles, ShieldCheck } from 'lucide-react';
 import { StatusBadge } from '../status/StatusBadge';
 import type { ConnectionStatus } from '../../types';
 
